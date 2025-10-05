@@ -28,11 +28,25 @@ class FaceRecognizer:
     faces = self.model.get(image_bgr)
     return [face.embedding for face in faces]
 
-  def get_face_embedding(self, image_data: str) -> Tuple[
+  def get_face_embedding_base64(self, image_data: str) -> Tuple[
     Optional[List[float]], int]:
     """Extracts embeddings from the image and returns the number of faces found."""
     image = self.decode_image(image_data)
     embeddings = self.extract_embeddings(image)
+
+    if len(embeddings) == 0:
+      return None, 0
+    elif len(embeddings) > 1:
+      return None, len(embeddings)
+
+    return embeddings[0].tolist(), 1
+
+  def get_face_embedding_binary(self, image_bytes: bytes) -> Tuple[Optional[List[float]], int]:
+    """Extracts embeddings from a binary image (e.g., multipart file content)."""
+    image = Image.open(io.BytesIO(image_bytes))
+    image = image.convert("RGB")
+    image_np = np.array(image)
+    embeddings = self.extract_embeddings(image_np)
 
     if len(embeddings) == 0:
       return None, 0

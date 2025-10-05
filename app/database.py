@@ -1,6 +1,7 @@
 from qdrant_client import QdrantClient
 from qdrant_client.http import models
 from app.config import QDRANT_HOST, QDRANT_PORT, COLLECTION_NAME, EMBEDDING_SIZE
+import uuid
 
 
 class VectorDB:
@@ -25,7 +26,7 @@ class VectorDB:
 
   def add_embedding(self, embedding: list, name: str):
     """Add embedding to the database."""
-    point_id = hash(name)  # Простой способ генерации ID
+    point_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, name))
     self.client.upsert(
         collection_name=self.collection_name,
         points=[
